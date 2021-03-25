@@ -5,6 +5,7 @@ import cors from 'cors'
 import requireHTTPS from './https'
 import fs from 'fs'
 import http from 'http'
+import router from './routers/export-router'
 import https from 'https'
 import { secret } from './dotenv'
 
@@ -32,12 +33,15 @@ app.use(cors())
 app.use(requireHTTPS)
 
 // Маршруты
+
+app.use('/users', router.userRouter)
+
 app.get(
-  '/',
-  (req, res) => {
-    const message = 'Hello, world!'
-    res.json({ message })
-  }
+    '/',
+    (req, res) => {
+        const message = 'Hello, world!'
+        res.json({ message })
+    }
 )
 
 // Публичная папка
@@ -45,12 +49,12 @@ app.use('/public', express.static(path.join(__dirname, publicFolder)))
 
 // Сертификаты
 const credentials = {
-  cert: fs.readFileSync(path.join(__dirname, certFile), 'utf8'),
-  key: fs.readFileSync(path.join(__dirname, keyFile), 'utf8')
+    cert: fs.readFileSync(path.join(__dirname, certFile), 'utf8'),
+    key: fs.readFileSync(path.join(__dirname, keyFile), 'utf8')
 }
 
 // Запуск
 https.createServer(credentials, app).listen(portHTTPS)
 http.createServer(app).listen(portHTTP, () => {
-  console.log(`Сервер запущен на порту ${portHTTP}`)
+    console.log(`Сервер запущен на порту ${portHTTP}`)
 })
