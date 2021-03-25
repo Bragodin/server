@@ -7,10 +7,8 @@ import fs from 'fs'
 import http from 'http'
 import router from './routers/export-router'
 import https from 'https'
+import mongoose from 'mongoose'
 import { secret } from './dotenv'
-
-// Только для проверки. Это не следует отправлять в консоль
-console.log(`Переменная из .env "${secret}"`)
 
 const app = express()
 const portHTTP = 3000
@@ -18,6 +16,13 @@ const portHTTPS = 8443
 const certFile = '../certs/public.crt'
 const keyFile = '../certs/private.key'
 const publicFolder = '../public'
+
+mongoose.connect(process.env.MONGO_DB, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+    useUnifiedTopology: true
+});
 
 // Парсер тела запроса
 app.use(express.json())
@@ -53,7 +58,6 @@ const credentials = {
     key: fs.readFileSync(path.join(__dirname, keyFile), 'utf8')
 }
 
-// Запуск
 https.createServer(credentials, app).listen(portHTTPS)
 http.createServer(app).listen(portHTTP, () => {
     console.log(`Сервер запущен на порту ${portHTTP}`)
